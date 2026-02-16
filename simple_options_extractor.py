@@ -141,9 +141,8 @@ def extract_options_data(image):
                 volume = numbers[-2]
                 oi = numbers[-1]
             
-            if strike and volume is not None and oi is not None:
+            if volume is not None and oi is not None:
                 options_data.append({
-                    'Strike': strike,
                     'Volume': volume,
                     'OI': oi
                 })
@@ -166,16 +165,13 @@ def looks_like_strike(text):
 
 
 def format_for_clipboard(data):
-    """Format data as tab-separated for easy pasting"""
+    """Format data as (volume, oi) pairs"""
     if not data:
         return ""
     
-    # Create tab-separated format
-    lines = ["Strike\tVolume\tOI"]
-    for row in data:
-        lines.append(f"{row['Strike']}\t{row['Volume']}\t{row['OI']}")
-    
-    return "\n".join(lines)
+    # Create pairs format: (vol, oi) (vol, oi) ...
+    pairs = [f"({row['Volume']}, {row['OI']})" for row in data]
+    return " ".join(pairs)
 
 
 # Main app
@@ -209,7 +205,7 @@ if uploaded_file:
             st.markdown("""
             <div class="success-box">
                 <h4>✅ Extraction Complete!</h4>
-                <p>Found <strong>{}</strong> option strikes</p>
+                <p>Found <strong>{}</strong> rows of data</p>
             </div>
             """.format(len(extracted_data)), unsafe_allow_html=True)
             
@@ -229,7 +225,7 @@ if uploaded_file:
             st.text_area(
                 "Copy this data:",
                 value=st.session_state.clipboard_text,
-                height=200,
+                height=100,
                 help="Select all and copy (Ctrl+A, Ctrl+C)"
             )
             
@@ -247,6 +243,6 @@ st.markdown("""
     2. Click "Extract Data"<br>
     3. Copy the extracted data</p>
     <br>
-    <small>Works best with clear screenshots showing Strike, Volume, and OI columns</small>
+    <small>Works best with clear screenshots showing Volume and OI columns</small>
 </div>
 """, unsafe_allow_html=True)
